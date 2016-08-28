@@ -110,22 +110,25 @@ class UpstreamReleasesPlugin(BasePlugin):
                 except:
                     pass
         else:
+            version_list = []
             if package == "flash":
                 mint_package = "mint-flashplugin-11"
             else:
                 mint_package = package
-            current_versions_link = "http://denver.linuxmint.com/pool/import/%s/%s/" % (mint_package[0], mint_package)
+            current_versions_link = "http://chicago.linuxmint.com/pool/import/%s/%s/" % (mint_package[0], mint_package)
             resp, content = c.request(current_versions_link)
             for release in content.split("<a"):
                 try:
                     filename = release.split("href=\"")[1].split("\"")[0]
                     if filename.endswith(".tar.gz"):
                         if package == "flash":
-                            current_version = filename[len(mint_package) + 1:][:-7]
+                            version_list.append(filename[len(mint_package) + 1:][:-7])
                         else:
-                            current_version = filename[len(mint_package) + 1:].split("%")[0]
+                            version_list.append(filename[len(mint_package) + 1:].split("%")[0])
                 except:
                     pass
+            version_list.sort(lambda a,b: cmp(LooseVersion(a), LooseVersion(b)))
+            current_version = version_list[-1]
         if current_version == None:
             raise Exception("Could not load current version for %s" % package)
         
